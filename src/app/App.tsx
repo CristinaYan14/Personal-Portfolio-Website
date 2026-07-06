@@ -1503,7 +1503,9 @@ function carouselItemStyle(
   const baseBlur = [0, 2.0, 4.0, 7.0][abs];
   const opacity = [1, 0.52, 0.28, 0.1][abs];
   const gray = [0, 0.6, 0.88, 1.0][abs];
-  const xPx = offset * ITEM_W * SPACING;
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+  const effItemW = isMobile ? window.innerWidth * 0.55 : ITEM_W;  /* 修正-其它项目偏移步长适配 */
+  const xPx = offset * effItemW * SPACING;
   // extraBlur decays slightly with distance so far items don't get over-blurred
   const totalBlur =
     baseBlur + extraBlur * Math.max(0, 1 - abs * 0.18);

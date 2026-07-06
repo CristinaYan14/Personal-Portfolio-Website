@@ -362,14 +362,23 @@
 
   /* ─── 其它项目轮播：等比例缩放（复用PC布局） ─── */
   section[id="other-projects"] {
-    padding-left: 0 !important;
+    margin-left: calc(-1 * clamp(60px, 20vw, 85px)) !important;
+    width: calc(100% + clamp(60px, 20vw, 85px)) !important;
+    padding-left: clamp(60px, 20vw, 85px) !important;  /* 修正-其他项目卡片响应式宽高：section扩展至全视口 */
     padding-right: 0 !important;
   }
   section[id="other-projects"] .other-projects-track {
-    transform: scale(clamp(0.42, (100vw - 32px) / 800, 1.0));  /* 仅修改-其它项目卡片缩小露两侧 */
+    transform: scale(clamp(0.4, (100vw - 32px) / 900, 1.0));  /* 修正-强制缩小卡片露两侧 */
     transform-origin: center top;
     height: 260px !important;
-    overflow: hidden;
+    overflow: visible !important;  /* 修正-强制缩小卡片露两侧：防止clip侧边卡片 */
+  }
+  /* 修正-其他项目卡片响应式宽高：使用相对单位，自然适配屏幕 */
+  section[id="other-projects"] .other-projects-track > div {
+    width: 55vw !important;
+    max-width: 280px !important;
+    height: auto !important;
+    aspect-ratio: 496 / 348 !important;
   }
   section[id="other-projects"] .select-none > div:first-child > button {
     display: none !important;  /* 仅修改-其他项目滑动：隐藏左右按钮 */
