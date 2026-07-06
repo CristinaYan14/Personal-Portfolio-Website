@@ -308,6 +308,17 @@
     height: 100% !important;
     object-fit: cover !important;
   }
+  /* 仅修改-主要项目间距缩小 */
+  section[id="projects"] {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+  }
+  /* 仅修改-主要项目间距缩小：卡片间间距 */
+  section[id="projects"] .space-y-6 > :not([hidden]) ~ :not([hidden]) {
+    margin-top: 10px !important;
+  }
+
+
   /* 缩略图条：水平滚动 */
   section[id="projects"] .space-y-6 > div > div:nth-child(2) > div:last-child {
     height: auto !important;
@@ -355,7 +366,7 @@
     padding-right: 0 !important;
   }
   section[id="other-projects"] .other-projects-track {
-    transform: scale(clamp(0.55, (100vw - 32px) / 700, 1.0));
+    transform: scale(clamp(0.42, (100vw - 32px) / 800, 1.0));  /* 仅修改-其它项目卡片缩小露两侧 */
     transform-origin: center top;
     height: 260px !important;
     overflow: hidden;
@@ -363,21 +374,6 @@
   section[id="other-projects"] .select-none > div:first-child > button {
     display: none !important;  /* 仅修改-其他项目滑动：隐藏左右按钮 */
   }
-  /* 仅修改-其他项目图片再缩+容器包裹 */
-  section[id="other-projects"] .other-projects-track div img {
-    transform: scale(0.55);
-    transform-origin: center center;
-    width: auto !important;
-    height: auto !important;
-  }
-  section[id="other-projects"] .other-projects-track > div {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    width: auto !important;
-    height: auto !important;
-  }
-
   /* ─── Skills 段：一列 ─── */
   section[id="skills"] {
     padding-left: 16px !important;

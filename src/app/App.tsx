@@ -1578,7 +1578,7 @@ function OtherProjectsSection() {
       <div className="mt-14 select-none">
         {/* ── Track ─────────────────────────────── */}
         <div
-          className="relative overflow-hidden" style={{ height: ITEM_H + 40, contain: "layout paint" }}
+          className="other-projects-track relative overflow-hidden" style={{ height: ITEM_H + 40, contain: "layout paint" }}
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
         >
