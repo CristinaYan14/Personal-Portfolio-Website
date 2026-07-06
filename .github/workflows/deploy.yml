@@ -8,23 +8,40 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      # 1. 拉取代码
+      - uses: actions/checkout@v4
 
-      # 如果你的项目需要构建（Vite/React 等），取消下面代码的注释
-      # - name: Setup Node.js
-      #   uses: actions/setup-node@v3
-      #   with:
-      #     node-version: '18'
-      # - run: npm install
-      # - run: npm run build
-
-      - name: Deploy to OSS
-        uses: taixw2/deploy-aliyun-oss@v1
+      # 2. 设置 Node.js 环境
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          region: ${{ secrets.OSS_REGION }}
+          node-version: '18'
+
+      # 3. 安装依赖（自动适配 pnpm）
+      - name: Install Dependencies
+        run: |
+          if [ -f pnpm-lock.yaml ]; then
+            npm install -g pnpm
+            pnpm install
+          else
+            npm install
+          fi
+
+      # 4. 构建项目（生成 dist 文件夹）
+      - name: Build Project
+        run: |
+          if [ -f pnpm-lock.yaml ]; then
+            pnpm run build
+          else
+            npm run build
+          fi
+
+      # 5. 部署到阿里云 OSS（官方 Action）
+      - name: Deploy to Aliyun OSS
+        uses: aliyun/oss-website-upload@v1
+        with:
           access-key-id: ${{ secrets.OSS_ACCESS_KEY_ID }}
           access-key-secret: ${{ secrets.OSS_ACCESS_KEY_SECRET }}
           bucket: ${{ secrets.OSS_BUCKET }}
-          entry: ./dist
-          remote-dir: /
-          path-rewrite: ^./dist
+          region: ${{ secrets.OSS_REGION }}
+          folder: ./dist
