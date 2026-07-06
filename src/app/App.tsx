@@ -261,15 +261,23 @@ function SpruceGlyph({ height = 64 }: { height?: number }) {
 function Sidebar({
   active,
   onNav,
+  isMobile,
+  sidebarOpen,
+  onToggle,
 }: {
   active: string;
   onNav: (id: string) => void;
+  isMobile?: boolean;
+  sidebarOpen?: boolean;
+  onToggle?: () => void;
 }) {
   return (
     <aside
-      className="fixed left-0 top-0 h-full z-20 flex flex-col overflow-hidden"
-      style={{ width: 268, background: "#2A4A38" }}
+      className={"fixed left-0 top-0 h-full z-20 flex flex-col overflow-hidden" + (sidebarOpen ? " sidebar-expanded" : "")}
+      style={{ width: isMobile ? (sidebarOpen ? 280 : undefined) : 268, background: "#2A4A38" }}
     >
+      {/* ─── PC 侧栏内容 ─── */}
+      <div className="sidebar-pc-content flex flex-col h-full">
       {/* Top-right hatch decoration */}
       <div className="absolute top-0 right-0 opacity-20 pointer-events-none">
         <HatchRect width={80} height={80} />
@@ -323,7 +331,7 @@ function Sidebar({
       </div>
 
       {/* Nav */}
-      <nav className="px-8 pt-7 pb-4 flex-shrink-0">
+      <nav className="px-8 pt-7 pb-4 flex-shrink-0 sidebar-mobile-hide">
         <p
           className="font-mono text-[8px] tracking-[0.28em] mb-4 uppercase"
           style={{ color: "rgba(249,247,235,0.28)" }}
@@ -379,7 +387,7 @@ function Sidebar({
 
       {/* Project index */}
       <div
-        className="px-8 pt-5 pb-4 border-t flex-1 overflow-y-auto"
+        className="px-8 pt-5 pb-4 border-t flex-1 overflow-y-auto sidebar-mobile-hide"
         style={{
           borderColor: "rgba(249,247,235,0.1)",
           scrollbarWidth: "none",
@@ -424,7 +432,7 @@ function Sidebar({
 
       {/* Footer */}
       <div
-        className="px-8 py-5 border-t flex-shrink-0"
+        className="px-8 py-5 border-t flex-shrink-0 sidebar-mobile-hide"
         style={{ borderColor: "rgba(249,247,235,0.1)" }}
       >
         <p
@@ -440,6 +448,45 @@ function Sidebar({
           B.Eng. in Landscape Architecture
         </p>
       </div>
+      </div>
+
+      {/* ─── 移动端侧栏布局（3:4:3） ─── */}
+      {isMobile && (
+        <div className="sidebar-mobile-layout">
+          {/* 顶部（3份）：姓名 + 英文名 + 专业方向 */}
+          <div className="sidebar-top">
+            <div className="sidebar-mobile-name">鄢如影</div>
+            <div className="sidebar-mobile-en">YAN RUYING</div>
+            <div className="sidebar-mobile-field1">景观建筑</div>
+            <div className="sidebar-mobile-field2">数字环境设计</div>
+          </div>
+
+          {/* 中部（4份）：导航菜单 */}
+          <div className="sidebar-middle">
+            <div className="sidebar-nav-title">NAVIGATION</div>
+            {NAV_ITEMS.map((item) => {
+              const isActive = active === item.id;
+              return (
+                <button
+                  key={item.id}
+                  className={"sidebar-nav-item" + (isActive ? " active" : "")}
+                  onClick={() => onNav(item.id)}
+                >
+                  <span className="nav-item-cn">{item.label}</span>
+                  <span className="nav-item-en">{item.en}</span>
+                  <span className="nav-item-line" />
+                </button>
+              );
+            })}
+          </div>
+
+          {/* 底部（3份）：学校 + 年份 */}
+          <div className="sidebar-bottom">
+            <div className="sidebar-mobile-school">东北农业大学</div>
+            <div className="sidebar-mobile-years">2023-2027</div>
+          </div>
+        </div>
+      )}
     </aside>
   );
 }
@@ -1483,6 +1530,7 @@ function carouselItemStyle(
 function OtherProjectsSection() {
   const [active, setActive] = useState(0);
   const [extraBlur, setExtraBlur] = useState(0);
+  const [touchStartX, setTouchStartX] = useState(0);
   const total = OTHER_PROJECTS.length;
   const mod = (n: number) => ((n % total) + total) % total;
 
@@ -1493,6 +1541,17 @@ function OtherProjectsSection() {
     requestAnimationFrame(() =>
       requestAnimationFrame(() => setExtraBlur(0)),
     );
+  };
+
+  // 仅修改-其他项目滑动：手指触控
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStartX(e.touches[0].clientX);
+  };
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const diff = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(diff) > 30) {
+      go(diff > 0 ? -1 : 1);
+    }
   };
 
   // Render WIN*2+1 items keyed by data index so DOM elements persist across
@@ -1520,6 +1579,8 @@ function OtherProjectsSection() {
         {/* ── Track ─────────────────────────────── */}
         <div
           className="relative overflow-hidden" style={{ height: ITEM_H + 40, contain: "layout paint" }}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
         >
           {/* Left arrow */}
           <button
@@ -1704,6 +1765,8 @@ function SectionHeader({ en, zh }: { en: string; zh: string }) {
 
 export default function App() {
   const [activeSection, setActiveSection] = useState("about");
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const mainRef = useRef<HTMLDivElement>(null);
 
   const scrollToSection = (id: string) => {
@@ -1738,13 +1801,55 @@ export default function App() {
     return () => main.removeEventListener("scroll", handler);
   }, []);
 
+  // 移动端：窗口 resize 监听
+  useEffect(() => {
+    const handler = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (!mobile) setSidebarOpen(false);
+    };
+    window.addEventListener("resize", handler);
+    return () => window.removeEventListener("resize", handler);
+  }, []);
+
   return (
     <div className="flex h-screen bg-background overflow-hidden">
-      <Sidebar active={activeSection} onNav={scrollToSection} />
+      <Sidebar
+          active={activeSection}
+          onNav={scrollToSection}
+          isMobile={isMobile}
+          sidebarOpen={sidebarOpen}
+          onToggle={() => setSidebarOpen(!sidebarOpen)}
+        />
+        {/* 移动端遮罩 */}
+        {isMobile && (
+          <div
+            className={"sidebar-overlay" + (sidebarOpen ? " visible" : "")}
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+        {/* 移动端汉堡按钮 */}
+        {isMobile && (
+          <button
+            className={"hamburger-btn" + (sidebarOpen ? " open" : "")}
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            aria-label={sidebarOpen ? "关闭菜单" : "打开菜单"}
+          >
+            <svg width="18" height="14" viewBox="0 0 18 14" fill="none">
+              <line x1="1" y1="2" x2="17" y2="2" stroke="#F9F7EB" strokeWidth="1.5" strokeLinecap="round" />
+              <line x1="1" y1="7" x2="17" y2="7" stroke="#F9F7EB" strokeWidth="1.5" strokeLinecap="round" />
+              <line x1="1" y1="12" x2="17" y2="12" stroke="#F9F7EB" strokeWidth="1.5" strokeLinecap="round" />
+            </svg>
+          </button>
+        )}
       <main
         ref={mainRef}
         className="flex-1 overflow-y-auto"
-        style={{ marginLeft: 268, scrollbarWidth: "none" }}
+        style={{
+          marginLeft: isMobile ? 0 : 268,
+          scrollbarWidth: "none",
+          transition: isMobile ? "margin-left 0.3s ease" : undefined,
+        }}
       >
         <AboutSection />
         <ProjectsSection />

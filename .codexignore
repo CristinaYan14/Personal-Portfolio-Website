@@ -1,0 +1,19 @@
+# 必须忽略（否则 Token 瞬间爆炸）
+node_modules/
+dist/
+.git/
+.github/
+
+# 锁文件（AI 读这个纯属浪费上下文）
+pnpm-lock.yaml
+pnpm-workspace.yaml
+
+# 环境与配置（AI 不需要读）
+.npmrc
+postcss.config.mjs
+vite.config.ts  # 除非你要改打包配置，否则先忽略
+
+# 日志与缓存（如果有）
+*.log
+*.map
+.DS_Store

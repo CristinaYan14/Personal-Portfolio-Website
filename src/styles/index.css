@@ -1,3 +1,422 @@
 @import './fonts.css';
 @import './tailwind.css';
 @import './theme.css';
+
+/* ===== 移动端优化 ===== */
+@media (max-width: 767px) {
+  /* 修复-右侧遮挡滑动：主内容区防溢出、留出侧栏空间 */
+  .flex.h-screen {
+    overflow-x: hidden !important;
+  }
+  main {
+    margin-left: 0 !important;
+    padding-left: clamp(60px, 20vw, 85px) !important;  /* 为固定侧栏腾出空间 */
+    overflow-x: hidden !important;
+    width: 100% !important;
+  }
+  /* 重置可能引发整体滑动的 transform 或 margin */
+  main > * {
+    transform: translateX(0) !important;
+  }
+
+
+  /* ─── 左侧栏折叠（移动端窄条） ─── */
+  aside {
+    width: clamp(60px, 20vw, 85px) !important;
+    transition: width 0.3s ease;
+  }
+
+  /* 左侧栏展开（覆盖模式） */
+  aside.sidebar-expanded {
+    width: 280px !important;
+    z-index: 40 !important;
+    box-shadow: 4px 0 20px rgba(0,0,0,0.3);
+  }
+
+  /* 左侧栏-顶部（3份）：姓名 + 英文名 + 专业方向 */
+  .sidebar-mobile-layout .sidebar-top {
+    flex: 3 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: flex-start !important;
+    padding: 0 8px !important;
+    line-height: 1.2 !important;
+  }
+  .sidebar-top .sidebar-mobile-name {
+    font-family: "Noto Sans SC", sans-serif !important;
+    font-size: clamp(0.9rem, 2.5vw, 1.2rem) !important;
+    font-weight: 900 !important;
+    color: #F9F7EB !important;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+  .sidebar-top .sidebar-mobile-en {
+    font-family: "Courier Prime", monospace !important;
+    font-size: clamp(0.4rem, 1vw, 0.55rem) !important;
+    font-weight: 400 !important;
+    color: rgba(249,247,235,0.35) !important;
+    letter-spacing: 0.12em !important;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    margin-top: 2px;
+  }
+  .sidebar-top .sidebar-mobile-field1,
+  .sidebar-top .sidebar-mobile-field2 {
+    font-family: "Noto Sans SC", sans-serif !important;
+    font-size: clamp(0.4rem, 1vw, 0.55rem) !important;
+    font-weight: 400 !important;
+    color: rgba(249,247,235,0.35) !important;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    margin-top: 2px;
+  }
+
+  /* 左侧栏-中部（4份）：导航菜单 */
+  .sidebar-mobile-layout .sidebar-middle {
+    flex: 4 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: flex-start !important;
+    padding: 0 8px !important;
+  }
+  .sidebar-middle .sidebar-nav-title {
+    font-family: "Courier Prime", monospace !important;
+    font-size: 0.5rem !important;
+    font-weight: 400 !important;
+    color: rgba(249,247,235,0.28) !important;
+    letter-spacing: 0.28em !important;
+    margin-bottom: 6px !important;
+    text-transform: uppercase !important;
+  }
+  .sidebar-middle .sidebar-nav-item {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    width: 100% !important;
+    background: transparent !important;
+    border: none !important;
+    cursor: pointer !important;
+    padding: 2px 0 !important;
+    text-align: left !important;
+    transition: transform 0.2s ease;
+  }
+  .sidebar-middle .sidebar-nav-item:not(:last-child) {
+    margin-bottom: 4px !important;
+  }
+  .sidebar-nav-item .nav-item-cn {
+    font-family: "Noto Sans SC", sans-serif !important;
+    font-size: clamp(0.55rem, 1.5vw, 0.75rem) !important;
+    font-weight: 700 !important;
+    color: rgba(249,247,235,0.6) !important;
+    line-height: 1.3;
+    transition: all 0.2s ease;
+  }
+  .sidebar-nav-item .nav-item-en {
+    font-family: "Courier Prime", monospace !important;
+    font-size: clamp(0.3rem, 0.8vw, 0.4rem) !important;
+    font-weight: 400 !important;
+    color: rgba(249,247,235,0.25) !important;
+    letter-spacing: 0.08em !important;
+    line-height: 1.2;
+    margin-bottom: 1px;
+    transition: all 0.2s ease;
+  }
+  .sidebar-nav-item .nav-item-line {
+    width: 60% !important;
+    height: 1px !important;
+    background: rgba(249,247,235,0.2) !important;
+    transition: width 0.2s ease, background 0.2s ease;
+    max-width: 80%;
+  }
+  /* 激活态：放大+横线拉长 */
+  .sidebar-nav-item.active .nav-item-cn {
+    font-size: clamp(0.65rem, 1.8vw, 0.85rem) !important;
+    color: #F9F7EB !important;
+  }
+  .sidebar-nav-item.active .nav-item-en {
+    font-size: clamp(0.35rem, 1vw, 0.45rem) !important;
+    color: rgba(249,247,235,0.5) !important;
+  }
+  .sidebar-nav-item.active .nav-item-line {
+    width: 100% !important;
+    height: 2px !important;
+    background: #F9F7EB !important;
+  }
+
+  /* 左侧栏-底部（3份）：学校 + 年份 */
+  .sidebar-mobile-layout .sidebar-bottom {
+    flex: 3 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-end !important;
+    align-items: flex-start !important;
+    padding: 0 8px 15% 8px !important;
+  }
+  .sidebar-bottom .sidebar-mobile-school {
+    font-family: "Noto Sans SC", sans-serif !important;
+    font-size: clamp(0.65rem, 1.8vw, 0.9rem) !important;  /* 仅修改-东北农大字号 */
+    font-weight: 400 !important;
+    color: rgba(249,247,235,0.72) !important;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+  .sidebar-bottom .sidebar-mobile-years {
+    font-family: "Courier Prime", monospace !important;
+    font-size: clamp(0.4rem, 1vw, 0.6rem) !important;
+    font-weight: 400 !important;
+    color: rgba(255,255,255,0.5) !important;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    margin-top: 2px;
+  }
+
+  /* 折叠态隐藏 PC 侧栏内容 */
+  /* 左侧栏折叠态隐藏 PC 内容 */
+  aside:not(.sidebar-expanded) .sidebar-pc-content {
+    display: none !important;
+  }
+  /* 移动端布局容器：折叠态可见，展开态/PC隐藏 */
+  .sidebar-mobile-layout {
+    display: none !important;
+  }
+  aside:not(.sidebar-expanded) .sidebar-mobile-layout {
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
+  }
+
+  /* 左下角遮罩层 */
+  .sidebar-overlay {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 35 !important;
+    background: rgba(0,0,0,0.4) !important;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+  .sidebar-overlay.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* 汉堡菜单按钮（左上角浮动） */
+  .hamburger-btn {
+    position: fixed !important;
+    top: 12px !important;
+    left: 12px !important;
+    z-index: 45 !important;
+    width: 36px !important;
+    height: 36px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: #2A4A38 !important;
+    border: 1px solid rgba(249,247,235,0.2) !important;
+    border-radius: 4px !important;
+    cursor: pointer !important;
+    transition: left 0.3s ease !important;
+  }
+  .hamburger-btn.open {
+    left: 292px !important;  /* 侧边栏展开后按钮移到右侧 */
+  }
+
+  /* ─── About 段：排版优化 ─── */
+  section[id="about"] {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+  section[id="about"] h2.text-\[58px\] {
+    font-size: clamp(2rem, 8vw, 3rem) !important;
+    line-height: 1.1 !important;
+  }
+  section[id="about"] .text-\[15px\] {
+    font-size: clamp(0.875rem, 3.2vw, 1rem) !important;
+    line-height: 1.7 !important;
+  }
+  /* 统计栏保持居中 */
+  section[id="about"] .flex.gap-14.mt-14 {
+    flex-direction: row !important;
+    justify-content: space-around !important;
+    gap: 0.5rem !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+  }
+  section[id="about"] .flex.gap-14.mt-14 > div {
+    flex: 1 1 0 !important;
+    text-align: center !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+  }
+
+  /* ─── 项目卡片：整体改为纵向 ─── */
+  section[id="projects"] .space-y-6 > div {
+    /* 仅修改-主要项目总框放大+空隙 */
+    flex-direction: column !important;
+    height: auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 12px !important;
+  }
+  /* 仅修改-主要项目放大：标签列 */
+  section[id="projects"] .space-y-6 > div > div:first-child {
+    flex-direction: row !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    padding: 6px 12px !important;
+    justify-content: space-between !important;
+  }
+  /* 标签列旋转文本改为横向 */
+  section[id="projects"] .space-y-6 > div > div:first-child span:last-child {
+    writing-mode: horizontal-tb !important;
+    transform: none !important;
+  }
+  /* 仅修改-主要项目放大：图片列全宽 */
+  section[id="projects"] .space-y-6 > div > div:nth-child(2) {
+    width: 100% !important;
+    flex-shrink: 1 !important;
+  }
+  /* 仅修改-主要项目放大：主图区放大填满 */
+  section[id="projects"] .space-y-6 > div > div:nth-child(2) > div:first-child {
+    aspect-ratio: 510 / 380;
+    min-height: 260px;
+    max-height: 55vh;
+    width: 100% !important;
+  }
+  /* 仅修改-主要项目放大：图片跟随放大填满 */
+  section[id="projects"] .space-y-6 > div > div:nth-child(2) > div:first-child img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+  }
+  /* 缩略图条：水平滚动 */
+  section[id="projects"] .space-y-6 > div > div:nth-child(2) > div:last-child {
+    height: auto !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    gap: 10px !important;
+    padding: 8px 0 !important;
+    display: flex !important;
+    flex-wrap: nowrap !important;
+  }
+  section[id="projects"] .space-y-6 > div > div:nth-child(2) > div:last-child button {
+    flex: 0 0 auto !important;
+    height: 70px !important;
+    min-width: 52px !important;
+    max-width: 100px !important;
+  }
+  section[id="projects"] .space-y-6 > div > div:nth-child(2) > div:last-child button img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+  }
+  /* 文字面板 */
+  section[id="projects"] .space-y-6 > div > div:nth-child(3) {
+    padding: 10px 0 !important;
+    width: 100% !important;
+  }
+  section[id="projects"] .space-y-6 > div > div:nth-child(3) h3 {
+    font-size: clamp(0.9rem, 3vw, 1.2rem) !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+  }
+  section[id="projects"] .space-y-6 > div > div:nth-child(3) p:not(.font-mono) {
+    font-size: clamp(0.8125rem, 3vw, 0.9375rem) !important;
+    line-height: 1.6 !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+  }
+  section[id="projects"] .space-y-6 > div > div:nth-child(3) .font-mono {
+    font-size: clamp(0.625rem, 2vw, 0.75rem) !important;
+  }
+
+  /* ─── 其它项目轮播：等比例缩放（复用PC布局） ─── */
+  section[id="other-projects"] {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+  section[id="other-projects"] .other-projects-track {
+    transform: scale(clamp(0.55, (100vw - 32px) / 700, 1.0));
+    transform-origin: center top;
+    height: 260px !important;
+    overflow: hidden;
+  }
+  section[id="other-projects"] .select-none > div:first-child > button {
+    display: none !important;  /* 仅修改-其他项目滑动：隐藏左右按钮 */
+  }
+  /* 仅修改-其他项目图片再缩+容器包裹 */
+  section[id="other-projects"] .other-projects-track div img {
+    transform: scale(0.55);
+    transform-origin: center center;
+    width: auto !important;
+    height: auto !important;
+  }
+  section[id="other-projects"] .other-projects-track > div {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: auto !important;
+    height: auto !important;
+  }
+
+  /* ─── Skills 段：一列 ─── */
+  section[id="skills"] {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+  section[id="skills"] .grid-cols-3 {
+    grid-template-columns: 1fr !important;
+  }
+  section[id="skills"] p:last-child {
+    font-size: clamp(0.8125rem, 3vw, 0.9375rem) !important;
+  }
+
+  /* ─── Contact 段 ─── */
+  section[id="contact"] {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+  section[id="contact"] .contact-flex {
+    flex-direction: column !important;
+    gap: 24px !important;
+  }
+  section[id="contact"] p {
+    font-size: clamp(0.8125rem, 3vw, 0.9375rem) !important;
+    line-height: 1.6 !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+  }
+
+  /* ─── 全局文字溢出防护 ─── */
+  section[id] h2,
+  section[id] h3,
+  section[id] p {
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+  }
+
+  /* ─── 全局图片自适应 ─── */
+  section[id] img {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+}
