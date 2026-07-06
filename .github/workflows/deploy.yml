@@ -8,40 +8,34 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      # 1. 拉取代码
       - uses: actions/checkout@v4
 
-      # 2. 设置 Node.js 环境
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
+      # 如果本地已经构建好了 dist，可以跳过构建步骤，直接上传
+      # 如果你希望在 Actions 中自动构建，去掉下面这段的注释
+      # - name: Setup Node.js
+      #   uses: actions/setup-node@v4
+      #   with:
+      #     node-version: '18'
+      # - name: Install Dependencies
+      #   run: |
+      #     if [ -f pnpm-lock.yaml ]; then
+      #       npm install -g pnpm && pnpm install
+      #     else
+      #       npm install
+      #     fi
+      # - name: Build Project
+      #   run: |
+      #     if [ -f pnpm-lock.yaml ]; then
+      #       pnpm run build
+      #     else
+      #       npm run build
+      #     fi
 
-      # 3. 安装依赖（自动适配 pnpm）
-      - name: Install Dependencies
-        run: |
-          if [ -f pnpm-lock.yaml ]; then
-            npm install -g pnpm
-            pnpm install
-          else
-            npm install
-          fi
-
-      # 4. 构建项目（生成 dist 文件夹）
-      - name: Build Project
-        run: |
-          if [ -f pnpm-lock.yaml ]; then
-            pnpm run build
-          else
-            npm run build
-          fi
-
-      # 5. 部署到阿里云 OSS（官方 Action）
       - name: Deploy to Aliyun OSS
-        uses: aliyun/oss-website-upload@v1
+        uses: jakejarvis/aliyun-oss-deploy@v1
         with:
           access-key-id: ${{ secrets.OSS_ACCESS_KEY_ID }}
           access-key-secret: ${{ secrets.OSS_ACCESS_KEY_SECRET }}
           bucket: ${{ secrets.OSS_BUCKET }}
-          region: ${{ secrets.OSS_REGION }}
+          endpoint: ${{ secrets.OSS_REGION }}
           folder: ./dist
