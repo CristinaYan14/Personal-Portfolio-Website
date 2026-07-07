@@ -373,12 +373,20 @@
     height: 260px !important;
     overflow: visible !important;  /* 修正-强制缩小卡片露两侧：防止clip侧边卡片 */
   }
-  /* 修正-其他项目卡片响应式宽高：使用相对单位，自然适配屏幕 */
+  /* 修正-图片自适应无裁剪：容器包裹图片，无固定高度 */
   section[id="other-projects"] .other-projects-track > div {
     width: 55vw !important;
     max-width: 280px !important;
     height: auto !important;
-    aspect-ratio: 496 / 348 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  /* 修正-图片自适应无裁剪：图片按原始比例显示，不裁剪 */
+  section[id="other-projects"] .other-projects-track > div img {
+    width: 100% !important;
+    height: auto !important;
+    object-fit: initial !important;
   }
   section[id="other-projects"] .select-none > div:first-child > button {
     display: none !important;  /* 仅修改-其他项目滑动：隐藏左右按钮 */
