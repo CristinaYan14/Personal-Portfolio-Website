@@ -98,7 +98,7 @@ const PROJECTS = [
     year: "2025",
     tags: ["SketchUp", "Enscape", "VR全景"],
     award: null,
-    desc: "参照拙政园制式，以SketchUp从零手搓房梁、屋檩、花架等木构细节，还原中式古建的空间序列与营造逻辑。每一根梁程的搭接皆经考据推敲。已生成VR全景图，可沉浸式漫游门庭院落，感受传统建筑的空间韵律。",
+    desc: "参照拙政园制式，以SketchUp从零手搓房梁、屋檩、花架等木构细节，还原中式古建的空间序列与营造逻辑。每一根梁程的搭接皆经考据推敲。根据建模，可沉浸式漫游门庭院落，感受传统建筑的空间韵律。",
         caption: [
       "别墅大门渲染",
       "大门花架屋椽细节",
@@ -630,6 +630,99 @@ function ProjectCard({
   const [activeImg, setActiveImg] = useState(0);
   const [prev, setPrev] = useState<number | null>(null);
   const [fading, setFading] = useState(false);
+  const touchStartX = useRef(0);
+  const touchStartY = useRef(0);
+  const slideRef = useRef<HTMLDivElement>(null);
+  const swipeOverlayRef = useRef<HTMLDivElement>(null);
+  const swipeImgRef = useRef<HTMLImageElement>(null);
+
+  /* 新增-滑动特效：触摸跟随拖拽翻页 */
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+    if (swipeOverlayRef.current) {
+      swipeOverlayRef.current.style.transition = "none";
+      swipeOverlayRef.current.style.transform = "translateX(-100%)";
+    }
+    if (slideRef.current) {
+      const activeEl = slideRef.current.querySelector("[data-active-img]") as HTMLElement;
+      if (activeEl) {
+        activeEl.style.transition = "none";
+        activeEl.style.transform = "translateX(0)";
+      }
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    const dx = e.touches[0].clientX - touchStartX.current;
+    const dy = e.touches[0].clientY - touchStartY.current;
+    if (Math.abs(dx) < Math.abs(dy) + 10) return;
+    e.preventDefault();  /* 修复-方向判断：水平滑动时阻止页面横向滚动，避免干扰 */
+    if (!slideRef.current || !swipeOverlayRef.current || !swipeImgRef.current) return;
+
+    const rect = slideRef.current.getBoundingClientRect();
+    const progress = Math.min(Math.abs(dx) / rect.width, 1);
+    const activeEl = slideRef.current.querySelector("[data-active-img]") as HTMLElement;
+
+    if (dx > 0) {
+      // 右滑 → 显示上一张（覆盖层从左侧滑入）
+      const prevIdx = (activeImg - 1 + project.images.length) % project.images.length;
+      swipeImgRef.current.src = "/images/" + project.images[prevIdx] + "?v=" + IMG_VERSION;
+      swipeOverlayRef.current.style.transform = "translateX(" + (-100 + progress * 100) + "%)";
+    } else {
+      // 左滑 → 显示下一张（覆盖层从右侧滑入）
+      const nextIdx = (activeImg + 1) % project.images.length;
+      swipeImgRef.current.src = "/images/" + project.images[nextIdx] + "?v=" + IMG_VERSION;
+      swipeOverlayRef.current.style.transform = "translateX(" + (100 - progress * 100) + "%)";
+    }
+
+    // 当前图片淡出 + 缩小
+    if (activeEl) {
+      activeEl.style.opacity = String(1 - progress * 0.5);
+      activeEl.style.transform = "translateX(" + (dx > 0 ? Math.min(dx, rect.width) : Math.max(dx, -rect.width)) + "px) scale(" + (1 - progress * 0.05) + ")";
+    }
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    if (!swipeOverlayRef.current || !slideRef.current) return;
+
+    const rect = slideRef.current.getBoundingClientRect();
+    const progress = rect ? Math.abs(dx) / rect.width : 0;
+    const el = swipeOverlayRef.current;
+    const activeEl = slideRef.current.querySelector("[data-active-img]") as HTMLElement;
+
+    if (Math.abs(dx) > 50 || progress > 0.15) {
+      // 超过阈值，完成滑动切换
+      el.style.transition = "transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94)";
+      el.style.transform = "translateX(0)";
+      if (activeEl) {
+        activeEl.style.transition = "transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94), opacity 0.3s ease";
+        activeEl.style.transform = "translateX(" + (dx > 0 ? "100%" : "-100%") + ") scale(0.92)";
+        activeEl.style.opacity = "0";
+      }
+      setTimeout(function() {
+        goDir(dx > 0 ? -1 : 1);
+        el.style.transition = "none";
+        el.style.transform = "translateX(-100%)";
+        if (activeEl) {
+          activeEl.style.transition = "none";
+          activeEl.style.transform = "translateX(0) scale(1)";
+          activeEl.style.opacity = "1";
+        }
+      }, 360);
+    } else {
+      // 未超过阈值，回弹到当前位置
+      el.style.transition = "transform 0.3s ease";
+      el.style.transform = dx > 0 ? "translateX(-100%)" : "translateX(100%)";
+      if (activeEl) {
+        activeEl.style.transition = "transform 0.3s ease, opacity 0.3s ease";
+        activeEl.style.transform = "translateX(0) scale(1)";
+        activeEl.style.opacity = "1";
+      }
+    }
+  };
+
 
   const switchTo = (next: number) => {
     if (next === activeImg || fading) return;
@@ -697,7 +790,14 @@ function ProjectCard({
         }}
       >
         {/* Main image (crossfade stack) */}
-        <div className="flex-1 relative overflow-hidden bg-[#EAE8D8]">
+        <div
+          ref={slideRef}
+          className="flex-1 relative overflow-hidden bg-[#EAE8D8]"
+          style={{ touchAction: "pan-y" }}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
           {/* Previous image fades out */}
           {prev !== null && (
             <img
@@ -721,6 +821,7 @@ function ProjectCard({
             key={`active-${activeImg}`}
             loading="lazy" decoding="async" src={`/images/${project.images[activeImg]}?v=${IMG_VERSION}`}
             alt={project.caption[activeImg]}
+            data-active-img="true"
             className="absolute inset-0 w-full h-full object-cover"
             style={{
               filter: "saturate(0.75)",
@@ -753,6 +854,18 @@ function ProjectCard({
             </div>
           </div>
 
+          {/* 新增-滑动特效：触摸拖拽滑动覆盖层 */}
+          <div
+            ref={swipeOverlayRef}
+            className="absolute inset-0 pointer-events-none"
+            style={{ zIndex: 10, transform: "translateX(-100%)", filter: "saturate(0.75)" }}
+          >
+            <img
+              ref={swipeImgRef}
+              alt=""
+              className="w-full h-full object-cover"
+            />
+          </div>
           {/* Image caption bar at bottom */}
           <div
             className="absolute bottom-0 left-0 right-0 z-10 px-4 pb-3"
