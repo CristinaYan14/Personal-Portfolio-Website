@@ -1791,7 +1791,7 @@ export default function App() {
       const scrollTop = main.scrollTop;
       for (const id of [...sections].reverse()) {
         const el = document.getElementById(id);
-        if (el && el.offsetTop - 120 <= scrollTop) {
+        if (el && scrollTop + main.clientHeight / 2 >= el.offsetTop) {  /* 细节-导航高亮修正 */
           setActiveSection(id);
           return;
         }

@@ -12,6 +12,7 @@
     margin-left: 0 !important;
     padding-left: clamp(60px, 20vw, 85px) !important;  /* 为固定侧栏腾出空间 */
     overflow-x: hidden !important;
+    touch-action: pan-y !important;  /* 细节-横向溢出禁止 */
     width: 100% !important;
   }
   /* 重置可能引发整体滑动的 transform 或 margin */
@@ -388,6 +389,11 @@
     height: auto !important;
     object-fit: initial !important;
   }
+
+  /* 细节-标题对齐：其它项目概览标题与左侧位置对齐 */
+  section[id="other-projects"] > div:first-child {
+    padding-left: 64px !important;
+  }
   section[id="other-projects"] .select-none > div:first-child > button {
     display: none !important;  /* 仅修改-其他项目滑动：隐藏左右按钮 */
   }
@@ -420,6 +426,11 @@
   }
 
   /* ─── 全局文字溢出防护 ─── */
+  /* 细节-版权缩小 */
+  section[id="contact"] > div:last-child > p:first-child {
+    font-size: clamp(0.6rem, 1.5vw, 0.8rem) !important;
+  }
+
   section[id] h2,
   section[id] h3,
   section[id] p {
