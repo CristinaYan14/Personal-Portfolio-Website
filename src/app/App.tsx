@@ -1268,8 +1268,8 @@ function ContactSection() {
               },
               { label: "WECHAT", value: "christine3754" },
               {
-                label: "PHONE",
-                value: "15272637754",
+                label: "LinkedIn", /*PHONE*/
+                value: "www.linkedin.com/in/影-如-623aa334b",/*numbder*/
               },
             ].map((c) => (
               <div
