@@ -1032,10 +1032,7 @@ function SkillsSection() {
           Education & Background
         </p>
         <div className="relative">
-          <div
-            className="absolute left-0 top-2 bottom-2 w-px"
-            style={{ background: "rgba(42,74,56,0.2)" }}
-          />
+          {/* 修改-删除教育背景竖线：已移除竖线 */}
           <div className="space-y-9 pl-9">
             {[
               {
@@ -1092,7 +1089,7 @@ function SkillsSection() {
                   {edu.sub}
                 </p>
                 <p
-                  className="font-mono text-[9px] mt-1"
+                  className="font-mono text-[7px] md:text-[9px] mt-1"
                   style={{ color: "#739482" }}
                 >
                   {edu.note}
