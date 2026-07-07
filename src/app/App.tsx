@@ -635,6 +635,7 @@ function ProjectCard({
   const slideRef = useRef<HTMLDivElement>(null);
   const swipeOverlayRef = useRef<HTMLDivElement>(null);
   const swipeImgRef = useRef<HTMLImageElement>(null);
+  const thumbStripRef = useRef<HTMLDivElement>(null);  /* 联动-缩略图条ref */
 
   /* 新增-滑动特效：触摸跟随拖拽翻页 */
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -722,6 +723,16 @@ function ProjectCard({
       }
     }
   };
+
+  /* 联动-主图与缩略图同步：activeImg切换时自动滚动缩略图到可视区域 */
+  useEffect(() => {
+    if (!thumbStripRef.current) return;
+    const container = thumbStripRef.current;
+    const activeBtn = container.children[activeImg] as HTMLElement;
+    if (!activeBtn) return;
+    const scrollLeft = activeBtn.offsetLeft - container.offsetWidth / 2 + activeBtn.offsetWidth / 2;
+    container.scrollTo({ left: Math.max(0, scrollLeft), behavior: "smooth" });
+  }, [activeImg]);
 
 
   const switchTo = (next: number) => {
@@ -885,6 +896,7 @@ function ProjectCard({
 
         {/* Thumbnail strip */}
         <div
+          ref={thumbStripRef}
           className="flex gap-0 border-t flex-shrink-0"
           style={{
             height: 76,
